@@ -1,0 +1,17 @@
+#spring.application.name=ecom-ddev
+spring:
+  application:
+    name: ecom-ddev
+  datasource:
+    url: jdbc:mysql://localhost:3306/ecom_ddev
+    username: root
+    password: 280412092312
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+
+server:
+  port: 8080
