@@ -1,5 +1,6 @@
 package com.ddev.ecom_ddev.config;
 
+import com.ddev.ecom_ddev.config.Jwt.JwtAuthenticationFilter;
 import com.ddev.ecom_ddev.entity.Users;
 import com.ddev.ecom_ddev.repository.UsersRepository;
 import lombok.AccessLevel;
@@ -20,6 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -28,6 +30,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfig {
 
     UsersRepository usersRepository;
+    JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -64,6 +67,7 @@ public class WebSecurityConfig {
                 .csrf( csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests( authConfig -> {
                     authConfig.requestMatchers(HttpMethod.GET, "/api/v1/test").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll();
