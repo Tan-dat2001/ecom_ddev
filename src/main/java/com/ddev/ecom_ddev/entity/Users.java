@@ -31,7 +31,7 @@ public class Users {
     String password;
     String address;
     String phone;
-    LocalDate birthday;
+    LocalDate birthDate;
 
     @Column(name = "created_at")
     LocalDateTime createdAt;
