@@ -1,8 +1,9 @@
 package com.ddev.ecom_ddev.config;
 
+
 import com.ddev.ecom_ddev.config.Jwt.JwtAuthenticationFilter;
-import com.ddev.ecom_ddev.entity.Users;
-import com.ddev.ecom_ddev.repository.UsersRepository;
+import com.ddev.ecom_ddev.config.Jwt.JwtService;
+import com.ddev.ecom_ddev.config.userServiceSecurity.UserDetailsServiceImpl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,8 +30,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class WebSecurityConfig {
 
-    UsersRepository usersRepository;
-    JwtAuthenticationFilter jwtAuthenticationFilter;
+    JwtService jwtService;
+    UserDetailsService userDetailsService;
+    UserDetailsServiceImpl userDetailsServiceImpl;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -40,7 +42,7 @@ public class WebSecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider =  new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService());
+        provider.setUserDetailsService(userDetailsServiceImpl);
         provider.setPasswordEncoder(passwordEncoder());
 
         return provider;
@@ -51,13 +53,10 @@ public class WebSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+
     @Bean
-    public UserDetailsService userDetailsService(){
-        return username -> {
-            Users user = usersRepository.findByEmail(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-            return UserDetailsImpl.build(user);
-        };
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtService, userDetailsService);
     }
 
     @Bean
@@ -67,7 +66,7 @@ public class WebSecurityConfig {
                 .csrf( csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests( authConfig -> {
                     authConfig.requestMatchers(HttpMethod.GET, "/api/v1/test").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll();
