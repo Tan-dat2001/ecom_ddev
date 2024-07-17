@@ -20,22 +20,25 @@ public class Products {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String name;
-    String description;
     Long price;
     Long soldQuantity;
     Long inventoryQuantity;
+    String code;
+    String brand;
+    String gender;
+    String description;
     boolean status;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "subCategory_id")
     SubCategories subCategory;
 
-    @OneToMany( mappedBy = "product",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany( mappedBy = "product", cascade = CascadeType.ALL)
     List<ProductDetails> productDetailsList;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     List<ProductImages> productImagesList;
 
 

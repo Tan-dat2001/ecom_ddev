@@ -24,7 +24,7 @@ public class SubCategories {
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "category_id")
     Categories category;
 

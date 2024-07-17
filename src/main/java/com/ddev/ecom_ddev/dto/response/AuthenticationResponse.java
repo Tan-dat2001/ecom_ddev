@@ -17,6 +17,8 @@ public class AuthenticationResponse {
     String lastName;
     String phone;
     boolean authenticated;
-    String token;
+    String type = "Bearer";
+    String accessToken;
+    String refreshToken;
 
 }
