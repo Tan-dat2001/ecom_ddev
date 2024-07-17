@@ -31,6 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        try{
         // 1 obtain header that contains jwt
         String authHeader = request.getHeader("Authorization"); // Bearer jwt
         if(authHeader == null || !authHeader.startsWith("Bearer ")){
@@ -39,14 +40,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         // 2 obtain jwt token
         String jwt = authHeader.split(" ")[1];
-        // 3 obtain subject/username in jwt
-        String email = jwtService.extractUsername(jwt);
-        // 4 set authenticate object inside our security context
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                email, null, userDetails.getAuthorities()
-        );
-        SecurityContextHolder.getContext().setAuthentication(authToken);
+        if(jwt != null && jwtService.validateJwtToken(jwt)){
+            // 3 obtain subject/username in jwt
+            String email = jwtService.extractUsername(jwt);
+            // 4 set authenticate object inside our security context
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    email, null, userDetails.getAuthorities()
+            );
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+        }
+        }catch (Exception e){
+            log.error("Cannot set user authentication: {}",e);
+        }
         // 5 execute rest of the filters
         filterChain.doFilter(request, response);
     }

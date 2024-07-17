@@ -10,8 +10,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ApiResponse<T> {
-     int code;
-     String message;
-     T metaData;
+public class TokenRefreshResponse {
+
+    String accessToken;
+    String refreshToken;
+    String tokenType = "Bearer";
 }

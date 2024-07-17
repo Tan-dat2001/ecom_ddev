@@ -44,7 +44,6 @@ public class WebSecurityConfig {
         DaoAuthenticationProvider provider =  new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsServiceImpl);
         provider.setPasswordEncoder(passwordEncoder());
-
         return provider;
     }
 
@@ -68,14 +67,15 @@ public class WebSecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests( authConfig -> {
-                    authConfig.requestMatchers(HttpMethod.GET, "/api/v1/test").permitAll();
+                    authConfig.requestMatchers(HttpMethod.GET, "/products").hasAnyRole("ADMIN", "USER");
+                    authConfig.requestMatchers(HttpMethod.POST, "/products").hasRole("ADMIN");
+                    authConfig.requestMatchers(HttpMethod.GET, "/api/v1/test").hasRole("ADMIN");
                     authConfig.requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll();
                     authConfig.requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll();
                     authConfig.requestMatchers("/api/v1/error").permitAll();
-                    authConfig.requestMatchers(HttpMethod.GET, "/products").hasAnyRole("ADMIN", "USER");
-                    authConfig.requestMatchers(HttpMethod.POST, "/products").hasRole("ADMIN");
 
-                    authConfig.anyRequest().denyAll();
+
+                    authConfig.anyRequest().authenticated();
                 });
         return http.build();
     }

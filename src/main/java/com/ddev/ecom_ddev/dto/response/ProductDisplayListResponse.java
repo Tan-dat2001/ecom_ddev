@@ -10,8 +10,14 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ApiResponse<T> {
-     int code;
-     String message;
-     T metaData;
+public class ProductDisplayListResponse {
+
+    String productId;
+    String productName;
+    String numberOfColor;
+    String numberOfSize;
+    String price;
+    String status;
+    String image;
+
 }

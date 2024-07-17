@@ -1,5 +1,6 @@
 package com.ddev.ecom_ddev.service;
 
+import com.ddev.ecom_ddev.common.ErrorCode;
 import com.ddev.ecom_ddev.config.Jwt.JwtService;
 import com.ddev.ecom_ddev.config.userServiceSecurity.UserDetailsImpl;
 import com.ddev.ecom_ddev.dto.request.AuthenticationRequest;
@@ -8,7 +9,7 @@ import com.ddev.ecom_ddev.dto.response.ApiResponse;
 import com.ddev.ecom_ddev.dto.response.AuthenticationResponse;
 import com.ddev.ecom_ddev.entity.Roles;
 import com.ddev.ecom_ddev.entity.Users;
-import com.ddev.ecom_ddev.repository.RoleRepository;
+import com.ddev.ecom_ddev.repository.RolesRepository;
 import com.ddev.ecom_ddev.repository.UsersRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -37,11 +38,11 @@ public class AuthenticationService {
     AuthenticationManager authenticationManager;
     JwtService jwtService;
     PasswordEncoder passwordEncoder;
-    RoleRepository roleRepository;
+    RolesRepository roleRepository;
 
     public ApiResponse<?> register(UserCreationRequest userCreationRequest){
         if(usersRepository.existsByEmail(userCreationRequest.getEmail())){
-            return new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), MSG_EMAIL_EXIST, null);
+            return new ApiResponse<>(ErrorCode.EMAIL_EXIST.getCode(), ErrorCode.EMAIL_EXIST.getMessage(), null);
         }
 
         Roles role = roleRepository.findByName("USER").get();
@@ -66,13 +67,20 @@ public class AuthenticationService {
 
     public ApiResponse<?> authenticate(AuthenticationRequest authenticationRequest){
         if(authenticationRequest.getEmail().isEmpty() || authenticationRequest.getPassword().isEmpty()){
-            return new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), MSG_BAD_REQUEST, null);
+            return new ApiResponse<>(ErrorCode.REQUEST_NULL_DATA.getCode(), ErrorCode.REQUEST_NULL_DATA.getMessage(), null);
+        }
+
+        Users user = usersRepository.findByEmail(authenticationRequest.getEmail()).orElse(null);
+        if(user == null) {
+            return new ApiResponse<>(ErrorCode.EMAIL_NOT_REGISTER.getCode(), ErrorCode.EMAIL_NOT_REGISTER.getMessage(), null);
+        }
+        boolean comparePassword = passwordEncoder.matches(authenticationRequest.getPassword(), user.getPassword());
+        if(!comparePassword){
+            return new ApiResponse<>(ErrorCode.INCORRECT_PASSWORD.getCode(),ErrorCode.INCORRECT_PASSWORD.getMessage(), null);
         }
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(authenticationRequest.getEmail(), authenticationRequest.getPassword());
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
-
-        Users user = usersRepository.findByEmail(authenticationRequest.getEmail()).get();
 
         String jwt = jwtService.generateToken(user, generateExtraClaims(user));
 
@@ -86,7 +94,7 @@ public class AuthenticationService {
                 .lastName(user.getLastName())
                 .phone(user.getPhone())
                 .authenticated(true)
-                .token(jwt)
+                .accessToken(jwt)
                 .build();
         return new ApiResponse<>(HttpStatus.OK.value(), MSG_LOGIN_SUCCESS, authenticationResponse);
     }

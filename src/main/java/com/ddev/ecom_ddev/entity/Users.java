@@ -40,7 +40,7 @@ public class Users {
     LocalDateTime updatedAt;
     boolean status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "role_id")
     Roles role;
 

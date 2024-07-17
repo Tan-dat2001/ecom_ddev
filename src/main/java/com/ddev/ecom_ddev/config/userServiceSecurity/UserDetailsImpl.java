@@ -20,8 +20,6 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
     }
 
-
-
     public static UserDetailsImpl build (Users user) {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName()));

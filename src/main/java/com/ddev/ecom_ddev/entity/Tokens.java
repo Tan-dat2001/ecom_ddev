@@ -24,7 +24,7 @@ public class Tokens {
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     Users user;
 }
